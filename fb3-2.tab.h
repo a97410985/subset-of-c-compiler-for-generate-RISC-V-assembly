@@ -57,8 +57,9 @@ extern int yydebug;
     DEFINE = 267,
     PRINT = 268,
     INT = 269,
-    CMP = 270,
-    UMINUS = 271
+    REAL = 270,
+    CMP = 271,
+    UMINUS = 272
   };
 #endif
 
@@ -75,7 +76,7 @@ union YYSTYPE
   struct symlist *sl;
   int fn;			/* which function */
 
-#line 79 "fb3-2.tab.h" /* yacc.c:1909  */
+#line 80 "fb3-2.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

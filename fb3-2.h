@@ -30,7 +30,7 @@ struct symlist {
   struct symbol *sym;
   struct symlist *next;
 };
-struct ast * test(struct symlist* sl);
+struct ast * test(struct symlist* sl, enum ValueType valueType);
 struct symlist *newsymlist(struct symbol *sym, struct symlist *next);
 void symlistfree(struct symlist *sl);
 

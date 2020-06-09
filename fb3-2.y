@@ -26,7 +26,7 @@
 %token <fn> FUNC
 %token EOL
 
-%token IF THEN ELSE WHILE DO DEFINE PRINT INT
+%token IF THEN ELSE WHILE DO DEFINE PRINT INT REAL
 
 
 %nonassoc <fn> CMP
@@ -45,7 +45,8 @@
 stmt: IF exp THEN list           { $$ = newflow('I', $2, $4, NULL); }
    | IF exp THEN list ELSE list  { $$ = newflow('I', $2, $4, $6); }
    | WHILE exp DO list           { $$ = newflow('W', $2, $4, NULL); }
-   | INT symlist                 { $$ = test($2); }
+   | INT symlist                 { $$ = test($2, integer); }
+   | REAL symlist                { $$ = test($2, real); }
    | exp
 ;
 

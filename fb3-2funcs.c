@@ -53,19 +53,19 @@ lookup(char* sym)
 }
 
 
-struct ast * test(struct symlist* sl) {
+struct ast * test(struct symlist* sl, enum ValueType valueType) {
     struct symref* a = malloc(sizeof(struct symref));
 
     struct symlist* curSl = sl;
     int count = 0;
     while(curSl!=NULL) {
         count++;
-        curSl->sym->valueType = integer;
+        curSl->sym->valueType = valueType;
         curSl = curSl->next;
     }
     a->nodetype = 'N';
     a->s = sl->sym;
-    a->s->valueType = integer;
+    a->s->valueType = valueType;
     return (struct ast *)a;
 }
 
@@ -166,6 +166,12 @@ newasgn(struct symbol *s, struct ast *v)
   if(!a) {
     yyerror("out of space");
     exit(0);
+  }
+  if ( s->valueType == integer) {
+      yyerror("newasgn : symbol valueType is integer");
+  } else {
+      yyerror("newasgn : symbol valueType is real");
+
   }
   a->nodetype = '=';
   a->s = s;

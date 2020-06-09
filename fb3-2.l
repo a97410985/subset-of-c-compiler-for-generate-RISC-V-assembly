@@ -46,6 +46,7 @@ EXP	([Ee][-+]?[0-9]+)
 "define"   { return DEFINE;}
 "print"   { return PRINT; }
 "int"      { return INT;}
+"real"     { return REAL;}
 
  /* built in functions */
 "sqrt"  { yylval.fn = B_sqrt; return FUNC; }
