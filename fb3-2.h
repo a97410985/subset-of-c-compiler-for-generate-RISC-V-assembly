@@ -8,10 +8,13 @@
  * Declarations for a calculator fb3-1
  */
 
+enum ValueType {integer, real};
+
 /* symbol table */
 struct symbol {		/* a variable name */
   char *name;
   double value;
+  enum ValueType valueType;
   struct ast *func;	/* stmt for the function */
   struct symlist *syms; /* list of dummy args */
 };
@@ -27,7 +30,7 @@ struct symlist {
   struct symbol *sym;
   struct symlist *next;
 };
-
+struct ast * test(struct symlist* sl);
 struct symlist *newsymlist(struct symbol *sym, struct symlist *next);
 void symlistfree(struct symlist *sl);
 

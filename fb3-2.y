@@ -26,7 +26,7 @@
 %token <fn> FUNC
 %token EOL
 
-%token IF THEN ELSE WHILE DO LET
+%token IF THEN ELSE WHILE DO DEFINE PRINT INT
 
 
 %nonassoc <fn> CMP
@@ -45,6 +45,7 @@
 stmt: IF exp THEN list           { $$ = newflow('I', $2, $4, NULL); }
    | IF exp THEN list ELSE list  { $$ = newflow('I', $2, $4, $6); }
    | WHILE exp DO list           { $$ = newflow('W', $2, $4, NULL); }
+   | INT symlist                 { $$ = test($2); }
    | exp
 ;
 
@@ -84,10 +85,12 @@ calclist: /* nothing */
      printf("= %4.4g\n> ", eval($2));
      treefree($2);
     }
-  | calclist LET NAME '(' symlist ')' '=' list EOL {
+  | calclist DEFINE NAME '(' symlist ')' '=' list EOL {
                        dodef($3, $5, $8);
                        printf("Defined %s\n> ", $3->name); }
-
+  | calclist PRINT '(' NAME ')' EOL {
+     printf("%s: %f\n>", $4->name, $4->value);
+  }
   | calclist error EOL { yyerrok; printf("> "); }
  ;
 %%

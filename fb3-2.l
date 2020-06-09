@@ -43,7 +43,9 @@ EXP	([Ee][-+]?[0-9]+)
 "else"  { return ELSE; }
 "while" { return WHILE; }
 "do"    { return DO; }
-"let"   { return LET;}
+"define"   { return DEFINE;}
+"print"   { return PRINT; }
+"int"      { return INT;}
 
  /* built in functions */
 "sqrt"  { yylval.fn = B_sqrt; return FUNC; }
