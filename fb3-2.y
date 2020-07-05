@@ -30,28 +30,21 @@ extern FILE* yyin;
 %left '*' '/'
 %nonassoc '|' UMINUS
 
-%type <a> exp stmt list explist
+%type <a> exp stmt explist
 %type <sl> symlist
 
 %start calclist
 
 %%
 
-stmt: IF exp THEN list           { $$ = newflow('I', $2, $4, NULL); }
-   | IF exp THEN list ELSE list  { $$ = newflow('I', $2, $4, $6); }
-   | WHILE exp DO list           { $$ = newflow('W', $2, $4, NULL); }
-   | INT symlist                 { $$ = test($2, integer); }
-   | REAL symlist                { $$ = test($2, real); }
-   | exp
-;
+stmtlist: stmtlist stmt
+	| stmt
 
-list: /* nothing */ { $$ = NULL; }
-   | stmt ';' list { if ($3 == NULL)
-	                $$ = $1;
-                      else
-			$$ = newast('L', $1, $3);
-                    }
-   ;
+stmt:
+     INT symlist ';'                { $$ = test($2, integer); }
+   | REAL symlist ';'                { $$ = test($2, real); }
+   | exp ';'                       { $$ = $1;}
+;
 
 exp: exp CMP exp          { $$ = newcmp($2, $1, $3); }
    | exp '+' exp          { $$ = newast('+', $1,$3); }
@@ -76,13 +69,17 @@ symlist: NAME       { $$ = newsymlist($1, NULL); printf("%s \n", $1->name); }
 ;
 
 calclist: /* nothing */
+   stmtlist {
+
+   }
+/*
   | calclist stmt ';' {
     if(debug) dumpast($2, 0);
      printf("= %4.4g\n> ", eval($2));
+     printf("code %s\n", $2->code);
      printf("=====================\n");
      treefree($2);
     }
-    /*
   | calclist DEFINE NAME '(' symlist ')' '=' list EOL {
                        dodef($3, $5, $8);
                        printf("Defined %s\n> ", $3->name); }
