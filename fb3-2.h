@@ -12,6 +12,9 @@ struct symbol {        /* a variable name */
     char* place;
 };
 
+
+char totalCode[1000];
+
 /* simple symtab of fixed size */
 #define NHASH 9997
 struct symbol symtab[NHASH];

@@ -193,15 +193,19 @@ newasgn(struct symbol *s, struct ast *v) {
     // 如果右手邊的value是常數，就用li指令生程式
     if (a->v->nodetype == 'K') {
         char *temp = malloc(sizeof(char) * 80);
-        sprintf(temp, "li %s %.0f", s->place, ((struct numval*)v)->number);
+        sprintf(temp, "li %s %.0f\n", s->place, ((struct numval*)v)->number);
         a->code = temp;
         printf("newasgn generate code %s \n", a->code);
+        strcat(totalCode, a->code);
+
     }    // 如果右手邊的value是變數，
     else if (a->v->nodetype == '+') {
         char *temp = malloc(sizeof(char) * 80);
         sprintf(temp, "%sadd %s t6 x0", a->v->code, a->place);
         a->code = temp;
         printf("newasgn generate code %s \n", a->code);
+        strcat(totalCode, a->code);
+
     }
     return (struct ast *) a;
 }
