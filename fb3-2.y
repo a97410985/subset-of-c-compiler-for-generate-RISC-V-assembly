@@ -69,7 +69,8 @@ symlist: NAME       { $$ = newsymlist($1, NULL); printf("%s \n", $1->name); }
 ;
 //   | 'int' FUNC '(' explist ')' '{' stmtlist '}' { $$ = newfunc($2, $4); }
 calclist: /* nothing */
-   INT NAME '('  ')' '{' stmtlist 'return' NUMBER ';' '}' {
+   INT NAME '('  ')' '{' stmtlist 'return' NUMBER ';' '}'
+  |INT NAME '('  ')' '{' stmtlist '}'{
    	printf("========== end =======\n");
    	printf("%s\n",totalCode);
    }

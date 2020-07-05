@@ -88,7 +88,35 @@ newast(int nodetype, struct ast *l, struct ast *r) {
         strcat(temp, "\n");
         a->code = temp;
     } else if (nodetype == '-') {
-
+        char *temp = malloc(sizeof(char) * 80);
+        strcat(temp, a->l->code);
+        strcat(temp, a->r->code);
+        strcat(temp, "sub t6 ");
+        strcat(temp, a->l->place);
+        strcat(temp, " ");
+        strcat(temp, a->r->place);
+        strcat(temp, "\n");
+        a->code = temp;
+    } else if (nodetype == '*') {
+        char *temp = malloc(sizeof(char) * 80);
+        strcat(temp, a->l->code);
+        strcat(temp, a->r->code);
+        strcat(temp, "mul t6 ");
+        strcat(temp, a->l->place);
+        strcat(temp, " ");
+        strcat(temp, a->r->place);
+        strcat(temp, "\n");
+        a->code = temp;
+    }else if (nodetype == '/') {
+        char *temp = malloc(sizeof(char) * 80);
+        strcat(temp, a->l->code);
+        strcat(temp, a->r->code);
+        strcat(temp, "div t6 ");
+        strcat(temp, a->l->place);
+        strcat(temp, " ");
+        strcat(temp, a->r->place);
+        strcat(temp, "\n");
+        a->code = temp;
     }
 
     printf("haha ast code : %s\n", a->code);
@@ -199,9 +227,9 @@ newasgn(struct symbol *s, struct ast *v) {
         strcat(totalCode, a->code);
 
     }    // 如果右手邊的value是變數，
-    else if (a->v->nodetype == '+') {
+    else {
         char *temp = malloc(sizeof(char) * 80);
-        sprintf(temp, "%sadd %s t6 x0", a->v->code, a->place);
+        sprintf(temp, "%sadd %s t6 x0\n", a->v->code, a->place);
         a->code = temp;
         printf("newasgn generate code %s \n", a->code);
         strcat(totalCode, a->code);
