@@ -58,7 +58,7 @@ EXP	([Ee][-+]?[0-9]+)
 "//".*  
 [ \t]   /* ignore white space */ 
 \\\n    printf("c> "); /* ignore line continuation */
-"\n"    { return EOL; }
+"\n"    { /*return EOL;*/ }
 
 .	{ yyerror("Mystery character %c\n", *yytext); }
 %%

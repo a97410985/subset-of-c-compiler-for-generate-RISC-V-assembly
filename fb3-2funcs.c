@@ -69,7 +69,8 @@ newast(int nodetype, struct ast *l, struct ast *r)
     yyerror("out of space");
     exit(0);
   }
-  a->nodetype = nodetype;
+    printf("new ast\n");
+    a->nodetype = nodetype;
   a->l = l;
   a->r = r;
   return a;
@@ -159,9 +160,9 @@ newasgn(struct symbol *s, struct ast *v)
     exit(0);
   }
   if ( s->valueType == integer) {
-      yyerror("newasgn : symbol valueType is integer");
+      printf("newasgn : symbol valueType is integer\n");
   } else {
-      yyerror("newasgn : symbol valueType is real");
+      printf("newasgn : symbol valueType is real\n");
 
   }
   a->nodetype = '=';
@@ -449,8 +450,13 @@ yyerror(char *s, ...)
 int
 main()
 {
-  printf("> ");
-  return yyparse();
+  FILE* fileInput;
+  fileInput =  fopen("test_program.txt", "r");
+  if (fileInput== NULL) {
+      printf("can't read file\n");
+      return -1;
+  }
+  parse(fileInput);
 }
 
 /* debugging: dump out an AST */
