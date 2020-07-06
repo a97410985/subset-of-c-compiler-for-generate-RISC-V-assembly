@@ -31,12 +31,14 @@ extern FILE* yyin;
 %left '*' '/'
 %nonassoc '|' UMINUS
 
-%type <a> exp stmt explist
+%type <a> exp stmt explist defineMacro
 %type <sl> symlist
 
 %start calclist
 
 %%
+
+defineMacro: DEFINE NAME NUMBER     { $$ = newmacro($2, $3);}
 
 stmtlist: stmtlist stmt
 	| stmt
@@ -70,7 +72,7 @@ symlist: NAME       { $$ = newsymlist($1, NULL); printf("%s \n", $1->name); }
 //   | 'int' FUNC '(' explist ')' '{' stmtlist '}' { $$ = newfunc($2, $4); }
 calclist: /* nothing */
    INT NAME '('  ')' '{' stmtlist 'return' NUMBER ';' '}'
-  |INT NAME '('  ')' '{' stmtlist '}'{
+  |defineMacro INT NAME '('  ')' '{' stmtlist '}'{
    	printf("========== end =======\n");
    	printf("%s\n",totalCode);
    }

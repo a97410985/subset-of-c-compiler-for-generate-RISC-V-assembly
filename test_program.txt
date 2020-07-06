@@ -6,9 +6,10 @@ asdf
 */
 
 //#include <stdio.h>
+#define N 10
 int main(){
 	int A,B,C,D,E,F;
-	A = 10;
+	A = N;
 	B = 20;
 	C = 5;
 	D = A + B;

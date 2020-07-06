@@ -81,9 +81,9 @@ newast(int nodetype, struct ast *l, struct ast *r) {
         char *temp = malloc(sizeof(char) * 80);
         strcat(temp, a->l->code);
         strcat(temp, a->r->code);
-        strcat(temp, "add t6 ");
+        strcat(temp, "add t6,");
         strcat(temp, a->l->place);
-        strcat(temp, " ");
+        strcat(temp, ", ");
         strcat(temp, a->r->place);
         strcat(temp, "\n");
         a->code = temp;
@@ -91,9 +91,9 @@ newast(int nodetype, struct ast *l, struct ast *r) {
         char *temp = malloc(sizeof(char) * 80);
         strcat(temp, a->l->code);
         strcat(temp, a->r->code);
-        strcat(temp, "sub t6 ");
+        strcat(temp, "sub t6, ");
         strcat(temp, a->l->place);
-        strcat(temp, " ");
+        strcat(temp, ", ");
         strcat(temp, a->r->place);
         strcat(temp, "\n");
         a->code = temp;
@@ -101,9 +101,9 @@ newast(int nodetype, struct ast *l, struct ast *r) {
         char *temp = malloc(sizeof(char) * 80);
         strcat(temp, a->l->code);
         strcat(temp, a->r->code);
-        strcat(temp, "mul t6 ");
+        strcat(temp, "mul t6, ");
         strcat(temp, a->l->place);
-        strcat(temp, " ");
+        strcat(temp, ", ");
         strcat(temp, a->r->place);
         strcat(temp, "\n");
         a->code = temp;
@@ -111,9 +111,9 @@ newast(int nodetype, struct ast *l, struct ast *r) {
         char *temp = malloc(sizeof(char) * 80);
         strcat(temp, a->l->code);
         strcat(temp, a->r->code);
-        strcat(temp, "div t6 ");
+        strcat(temp, "div t6, ");
         strcat(temp, a->l->place);
-        strcat(temp, " ");
+        strcat(temp, ", ");
         strcat(temp, a->r->place);
         strcat(temp, "\n");
         a->code = temp;
@@ -181,7 +181,20 @@ newcall(struct symbol *s, struct ast *l) {
     a->code = "";
     return (struct ast *) a;
 }
-
+struct ast* newmacro(struct symbol* s, double v) {
+    struct symref *a = malloc(sizeof(struct symref));
+    if (!a) {
+        yyerror("out of space");
+        exit(0);
+    }
+    a->nodetype = 'N';
+    a->s = s;
+    a->s->valueType = real;
+    s->value = v;
+    a->code = "";
+    a->place = "";
+    return (struct ast *) a;
+}
 struct ast *
 newref(struct symbol *s) {
     struct symref *a = malloc(sizeof(struct symref));
@@ -221,15 +234,22 @@ newasgn(struct symbol *s, struct ast *v) {
     // 如果右手邊的value是常數，就用li指令生程式
     if (a->v->nodetype == 'K') {
         char *temp = malloc(sizeof(char) * 80);
-        sprintf(temp, "li %s %.0f\n", s->place, ((struct numval*)v)->number);
+        sprintf(temp, "li %s, %.0f\n", s->place, ((struct numval*)v)->number);
         a->code = temp;
         printf("newasgn generate code %s \n", a->code);
         strcat(totalCode, a->code);
 
-    }    // 如果右手邊的value是變數，
-    else {
+    }
+    else if (a->v->nodetype=='N') {
         char *temp = malloc(sizeof(char) * 80);
-        sprintf(temp, "%sadd %s t6 x0\n", a->v->code, a->place);
+        sprintf(temp, "li %s, %.0f\n", s->place, ((struct symref*)v)->s->value);
+        a->code = temp;
+        printf("newasgn generate code %s \n", a->code);
+        strcat(totalCode, a->code);
+    }
+    else {// 如果右手邊的value是變數，
+        char *temp = malloc(sizeof(char) * 80);
+        sprintf(temp, "%sadd %s, t6, x0\n", a->v->code, a->place);
         a->code = temp;
         printf("newasgn generate code %s \n", a->code);
         strcat(totalCode, a->code);
