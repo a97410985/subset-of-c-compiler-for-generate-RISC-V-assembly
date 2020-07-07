@@ -45,6 +45,13 @@ lookup(char *sym) {
 }
 
 
+void arrdeclare(struct symbol *s, double size) {
+    printf("arrdeclare\n");
+    s->mLoc = cur_stk_size;
+    s->arrSize = size;
+    cur_stk_size += 4 * size;
+}
+
 struct ast *test(struct symlist *sl, enum ValueType valueType) {
     struct symref *a = malloc(sizeof(struct symref));
 
@@ -107,7 +114,7 @@ newast(int nodetype, struct ast *l, struct ast *r) {
         strcat(temp, a->r->place);
         strcat(temp, "\n");
         a->code = temp;
-    }else if (nodetype == '/') {
+    } else if (nodetype == '/') {
         char *temp = malloc(sizeof(char) * 80);
         strcat(temp, a->l->code);
         strcat(temp, a->r->code);
@@ -181,7 +188,8 @@ newcall(struct symbol *s, struct ast *l) {
     a->code = "";
     return (struct ast *) a;
 }
-struct ast* newmacro(struct symbol* s, double v) {
+
+struct ast *newmacro(struct symbol *s, double v) {
     struct symref *a = malloc(sizeof(struct symref));
     if (!a) {
         yyerror("out of space");
@@ -195,6 +203,21 @@ struct ast* newmacro(struct symbol* s, double v) {
     a->place = "";
     return (struct ast *) a;
 }
+
+struct ast *newarrref(struct symbol *s, double num) {
+    struct arrref *a = malloc(sizeof(struct arrref));
+    if (!a) {
+        yyerror("out of space");
+        exit(0);
+    }
+    a->nodetype = 'A';
+    a->s = s;
+    a->code = "";
+    a->place = "a7";
+    a->index = num;
+    return (struct ast *) a;
+}
+
 struct ast *
 newref(struct symbol *s) {
     struct symref *a = malloc(sizeof(struct symref));
@@ -209,6 +232,43 @@ newref(struct symbol *s) {
     a->code = "";
     a->place = s->place;
     return (struct ast *) a;
+}
+
+struct ast *newarrasgn(struct symbol* s, double num, struct ast* a)
+{
+    struct arrref *af = malloc(sizeof(struct arrref));
+    if (!af) {
+        yyerror("out of space");
+        exit(0);
+    }
+
+    if (curparseState == DeclareState) {
+        curparseState = ComputeState;
+        // 要生出挖stack的code
+        printf("要生出挖stack的code\n");
+        char *temp = malloc(sizeof(char) * 80);
+        sprintf(temp, "addi sp, sp, -%d\n", cur_stk_size);
+        printf("newarrasgn generate code %s \n", temp);
+        strcat(totalCode, temp);
+    }
+
+    af->nodetype = 'A';
+    af->s = s;
+    af->s->place = "a7";
+    af->code = "";
+    af->place = "a7";
+    af->index = num;
+
+    if (a->nodetype == 'K') { // 賦值運算子右邊是常數
+        printf("newarrasgn : 賦值運算子右邊是常數\n");
+        char *temp = malloc(sizeof(char) * 80);
+        sprintf(temp, "li %s, %.0f\nsw %s, %d(sp)\n", s->place, ((struct numval *) a)->number, s->place, cur_stk_size - s->mLoc - 4);
+        af->code = temp;
+        printf("newarrasgn generate code %s \n", af->code);
+        strcat(totalCode, af->code);
+    }
+
+    return (struct ast *) af;
 }
 
 struct ast *
@@ -234,20 +294,18 @@ newasgn(struct symbol *s, struct ast *v) {
     // 如果右手邊的value是常數，就用li指令生程式
     if (a->v->nodetype == 'K') {
         char *temp = malloc(sizeof(char) * 80);
-        sprintf(temp, "li %s, %.0f\n", s->place, ((struct numval*)v)->number);
+        sprintf(temp, "li %s, %.0f\n", s->place, ((struct numval *) v)->number);
         a->code = temp;
         printf("newasgn generate code %s \n", a->code);
         strcat(totalCode, a->code);
 
-    }
-    else if (a->v->nodetype=='N') {
+    } else if (a->v->nodetype == 'N') {
         char *temp = malloc(sizeof(char) * 80);
-        sprintf(temp, "li %s, %.0f\n", s->place, ((struct symref*)v)->s->value);
+        sprintf(temp, "li %s, %.0f\n", s->place, ((struct symref *) v)->s->value);
         a->code = temp;
         printf("newasgn generate code %s \n", a->code);
         strcat(totalCode, a->code);
-    }
-    else {// 如果右手邊的value是變數，
+    } else {// 如果右手邊的value是變數，
         char *temp = malloc(sizeof(char) * 80);
         sprintf(temp, "%sadd %s, t6, x0\n", a->v->code, a->place);
         a->code = temp;
@@ -581,6 +639,8 @@ yyerror(char *s, ...) {
 
 int
 main() {
+    curparseState = DeclareState;
+    cur_stk_size = 0;
     FILE *fileInput;
     fileInput = fopen("test_program.txt", "r");
     if (fileInput == NULL) {

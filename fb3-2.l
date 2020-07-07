@@ -21,6 +21,8 @@ EXP	([Ee][-+]?[0-9]+)
 ")" |
 "{" |
 "}" |
+"[" |
+"]" |
 "return" { return yytext[0]; }
 
  /* comparison ops */
@@ -60,8 +62,8 @@ EXP	([Ee][-+]?[0-9]+)
 "."?[0-9]+{EXP}? { yylval.d = atof(yytext); return NUMBER; }
 
 "//".*
-"/*"[a-z|A-Z| |*|\r|\n|\r\n|-]*"*/"
-[ \t]   /* ignore white space */ 
+"/*"[^`]*"*/"
+[ \t]   /* ignore white space */
 \\\n    printf("c> "); /* ignore line continuation */
 "\n"    { /*return EOL;*/ }
 

@@ -10,10 +10,15 @@ struct symbol {        /* a variable name */
     struct ast *func;    /* stmt for the function */
     struct symlist *syms; /* list of dummy args */
     char* place;
+    int mLoc;
+    int arrSize;
 };
 
-
+enum parseState {DeclareState, ComputeState};
+enum parseState curparseState;
 char totalCode[1000];
+int cur_stk_size;
+
 
 /* simple symtab of fixed size */
 #define NHASH 9997
@@ -104,6 +109,14 @@ struct symref {
     struct symbol *s;
 };
 
+struct arrref {
+    int nodetype;
+    char* code;
+    char* place;
+    struct symbol* s;
+    int index;
+};
+
 struct symasgn {
     int nodetype;            /* type = */
     const char *code;
@@ -123,11 +136,17 @@ struct ast *newcall(struct symbol *s, struct ast *l);
 
 struct ast *newref(struct symbol *s);
 
+struct ast *newarrref(struct symbol *s, double num);
+
+struct ast *newarrasgn(struct symbol* s, double num, struct ast* a);
+
 struct ast *newasgn(struct symbol *s, struct ast *v);
 
 struct ast *newnum(double d);
 
 struct ast *newflow(int nodetype, struct ast *cond, struct ast *tl, struct ast *tr);
+
+void arrdeclare(struct symbol* s, double size);
 
 /* define a function */
 void dodef(struct symbol *name, struct symlist *syms, struct ast *stmts);

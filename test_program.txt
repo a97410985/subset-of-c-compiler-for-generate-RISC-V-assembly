@@ -1,21 +1,9 @@
-/*
-
-asdfasfd
-asdf
-
-*/
-
 //#include <stdio.h>
-#define N 10
+/* test
+ */
 int main(){
-	int A,B,C,D,E,F;
-	A = N;
-	B = 20;
-	C = 5;
-	D = A + B;
-	E = A * C + D;
-	D = B * D / C;
-	F = A + B + C + D + E;
-	B = A / C;
-	//printf("A = %d,B = %d,C = %d,D = %d,E = %d,F = %d\n",A,B,C,D,E,F);
+	int a[10];
+	int b[10];
+	a[0] = 10;
+	b[0] = 20;
 }
