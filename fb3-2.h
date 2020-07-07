@@ -12,6 +12,7 @@ struct symbol {        /* a variable name */
     char* place;
     int mLoc;
     int arrSize;
+    int macroTF;
 };
 
 enum parseState {DeclareState, ComputeState};
@@ -138,7 +139,11 @@ struct ast *newref(struct symbol *s);
 
 struct ast *newarrref(struct symbol *s, double num);
 
+struct ast *newarrref_v(struct symbol *s, struct symbol* index_s);
+
 struct ast *newarrasgn(struct symbol* s, double num, struct ast* a);
+
+struct ast *newarrasgn_v(struct symbol* s, struct symbol* index_s, struct ast* a);
 
 struct ast *newasgn(struct symbol *s, struct ast *v);
 
@@ -153,6 +158,7 @@ struct ast *newincrement(struct symbol *s);
 struct ast *newStmtList(struct ast* stmtList, struct ast* stmt);
 
 void arrdeclare(struct symbol* s, double size);
+void arrdeclare_v(struct symbol* s, struct symbol* size_s);
 
 /* define a function */
 void dodef(struct symbol *name, struct symlist *syms, struct ast *stmts);

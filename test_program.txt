@@ -1,8 +1,12 @@
 int main(){
-    int i, num;
-    int N;
-    N = 5;
-    for (i = 0 ; i<N;i++) {
-        num = i;
-    }
+	int A[N],B[N],C[N],D[N];
+	int i;
+	for(i=0;i<N;i++){
+		A[i] = i;
+		B[i] = N-i;
+	}
+	for(i=0;i<N;i++){
+		C[i] = A[i] + B[i];
+		D[i] = A[i] * B[i] + C[i];
+	}
 }

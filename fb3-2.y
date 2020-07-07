@@ -46,10 +46,18 @@ stmtlist: stmtlist stmt  {printf("stmtlist :  %s\n", $2->code); strcat(totalCode
 forStmtList: forStmtList stmt {$$ = newStmtList($1, $2);}
 	| stmt {$$ = $1;}
 
+arrDecl: NAME '[' NUMBER ']'        { arrdeclare($1, $3); }
+        | NAME '[' NAME ']'         { arrdeclare_v($1, $3); }
+
+
+arrDeclList: arrDecl
+ | arrDecl ',' arrDeclList
+;
+
 stmt:
      INT symlist ';'                { $$ = test($2, integer); }
    | REAL symlist ';'                { $$ = test($2, real); }
-   | INT NAME '[' NUMBER ']' ';'        { arrdeclare($2, $4); }
+   | INT arrDeclList  ';'          { struct ast *a = malloc(sizeof(struct ast)); a->code = ""; a->place="";$$ = a;}
    | exp ';'                       { $$ = $1;}
    | FOR '(' exp ';' exp ';' exp ')' '{' forStmtList '}' {
    	printf("hhhhhhhhhhhhhh\n");
@@ -70,11 +78,13 @@ exp: exp CMP exp          { $$ = newcmp($2, $1, $3); }
    | '(' exp ')'          { $$ = $2; }
    | '-' exp %prec UMINUS { $$ = newast('M', $2, NULL); }
    | NAME '[' NUMBER ']'  { $$ = newarrref($1, $3); }
+   | NAME '[' NAME ']'  { $$ = newarrref_v($1, $3); }
    | NUMBER               { $$ = newnum($1); }
    | NAME                 { $$ = newref($1); }
    | NAME INCREMENT           { $$ = newincrement($1); }
    | NAME '=' exp         { $$ = newasgn($1, $3); }
    | NAME '[' NUMBER ']' '=' exp  { $$ = newarrasgn($1, $3, $6); }
+   | NAME '[' NAME ']' '=' exp  { $$ = newarrasgn_v($1, $3, $6); }
    | NAME '(' explist ')' { $$ = newcall($1, $3); }
 ;
 
