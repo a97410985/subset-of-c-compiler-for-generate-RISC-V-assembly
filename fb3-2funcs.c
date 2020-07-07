@@ -86,13 +86,33 @@ newast(int nodetype, struct ast *l, struct ast *r) {
     // 根據節點類型生成不同的程式碼
     if (nodetype == '+') {
         char *temp = malloc(sizeof(char) * 80);
+        printf("hahahahahha %c\n", a->l->nodetype);
+        printf("hahahahahha %s\n", a->l->place);
+        printf("hahahahahha %s\n", a->l->code);
+        printf("hahahahahha %s\n", a->r->place);
+
+
         strcat(temp, a->l->code);
         strcat(temp, a->r->code);
-        strcat(temp, "add t6,");
-        strcat(temp, a->l->place);
-        strcat(temp, ", ");
-        strcat(temp, a->r->place);
-        strcat(temp, "\n");
+        if (a->l->nodetype == 'K' || a->r->nodetype == 'K') {
+            strcat(temp, "addi ");
+            if (a->l->nodetype == 'K') {
+                char *temp2 = malloc(sizeof(char) * 80);
+                sprintf(temp2, "%s, %s, %.0f\n", a->place, a->r->place, ((struct numval*)a->l)->number);
+                strcat(temp, temp2);
+            } else {
+                char *temp2 = malloc(sizeof(char) * 80);
+                sprintf(temp2, "%s, %s, %.0f\n", a->place, a->l->place, ((struct numval*)a->r)->number);
+                strcat(temp, temp2);
+            }
+        } else {
+            strcat(temp, "add t6,");
+            strcat(temp, a->l->place);
+            strcat(temp, ", ");
+            strcat(temp, a->r->place);
+            strcat(temp, "\n");
+        }
+
         a->code = temp;
     } else if (nodetype == '-') {
         char *temp = malloc(sizeof(char) * 80);
@@ -124,6 +144,10 @@ newast(int nodetype, struct ast *l, struct ast *r) {
         strcat(temp, a->r->place);
         strcat(temp, "\n");
         a->code = temp;
+    } else if (nodetype == 'A') {
+        // array reference
+        printf("array reference in RHS\n");;
+
     }
 
     printf("haha ast code : %s\n", a->code);
@@ -234,8 +258,7 @@ newref(struct symbol *s) {
     return (struct ast *) a;
 }
 
-struct ast *newarrasgn(struct symbol* s, double num, struct ast* a)
-{
+struct ast *newarrasgn(struct symbol *s, double num, struct ast *a) {
     struct arrref *af = malloc(sizeof(struct arrref));
     if (!af) {
         yyerror("out of space");
@@ -262,7 +285,8 @@ struct ast *newarrasgn(struct symbol* s, double num, struct ast* a)
     if (a->nodetype == 'K') { // 賦值運算子右邊是常數
         printf("newarrasgn : 賦值運算子右邊是常數\n");
         char *temp = malloc(sizeof(char) * 80);
-        sprintf(temp, "li %s, %.0f\nsw %s, %d(sp)\n", s->place, ((struct numval *) a)->number, s->place, cur_stk_size - s->mLoc - 4);
+        sprintf(temp, "li %s, %.0f\nsw %s, %d(sp)\n", s->place, ((struct numval *) a)->number, s->place,
+                cur_stk_size - s->mLoc - 4);
         af->code = temp;
         printf("newarrasgn generate code %s \n", af->code);
         strcat(totalCode, af->code);
@@ -302,6 +326,12 @@ newasgn(struct symbol *s, struct ast *v) {
     } else if (a->v->nodetype == 'N') {
         char *temp = malloc(sizeof(char) * 80);
         sprintf(temp, "li %s, %.0f\n", s->place, ((struct symref *) v)->s->value);
+        a->code = temp;
+        printf("newasgn generate code %s \n", a->code);
+        strcat(totalCode, a->code);
+    } else if (a->v->nodetype == 'A') { // 陣列參考
+        char *temp = malloc(sizeof(char) * 80);
+        sprintf(temp, "lw a7, %d(sp)\nadd %s, a7, x0\n", cur_stk_size - ((struct arrref *) v)->index * 4 - 4, s->place);
         a->code = temp;
         printf("newasgn generate code %s \n", a->code);
         strcat(totalCode, a->code);

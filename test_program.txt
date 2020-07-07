@@ -2,8 +2,12 @@
 /* test
  */
 int main(){
+    int c,d;
 	int a[10];
 	int b[10];
+	d = 8;
 	a[0] = 10;
 	b[0] = 20;
+	c = a[0] + 5;
+	d = c+2;
 }
