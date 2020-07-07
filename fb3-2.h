@@ -146,6 +146,12 @@ struct ast *newnum(double d);
 
 struct ast *newflow(int nodetype, struct ast *cond, struct ast *tl, struct ast *tr);
 
+struct ast *newfor(struct ast* ini_a, struct ast* cmp_a, struct ast* chg_a, struct ast* stmtList);
+
+struct ast *newincrement(struct symbol *s);
+
+struct ast *newStmtList(struct ast* stmtList, struct ast* stmt);
+
 void arrdeclare(struct symbol* s, double size);
 
 /* define a function */

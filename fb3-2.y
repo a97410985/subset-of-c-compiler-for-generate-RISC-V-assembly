@@ -22,7 +22,7 @@ extern FILE* yyin;
 %token EOL
 
 // LB RB LP RP -> left brace, right brace, left Parenthesis, right Parenthesis
-%token IF THEN ELSE WHILE DO DEFINE PRINT INT REAL
+%token IF THEN ELSE WHILE DO DEFINE PRINT INT REAL FOR INCREMENT
 
 
 %nonassoc <fn> CMP
@@ -31,7 +31,7 @@ extern FILE* yyin;
 %left '*' '/'
 %nonassoc '|' UMINUS
 
-%type <a> exp stmt explist defineMacro
+%type <a> exp stmt explist defineMacro forStmtList
 %type <sl> symlist
 
 %start calclist
@@ -40,15 +40,26 @@ extern FILE* yyin;
 
 defineMacro: DEFINE NAME NUMBER     { $$ = newmacro($2, $3);}
 
-stmtlist: stmtlist stmt
-	| stmt
+stmtlist: stmtlist stmt  {printf("stmtlist :  %s\n", $2->code); strcat(totalCode, $2->code); }
+	| stmt {printf("stmtlist :  %s\n", $1->code); strcat(totalCode, $1->code); }
+
+forStmtList: forStmtList stmt {$$ = newStmtList($1, $2);}
+	| stmt {$$ = $1;}
 
 stmt:
      INT symlist ';'                { $$ = test($2, integer); }
    | REAL symlist ';'                { $$ = test($2, real); }
    | INT NAME '[' NUMBER ']' ';'        { arrdeclare($2, $4); }
    | exp ';'                       { $$ = $1;}
+   | FOR '(' exp ';' exp ';' exp ')' '{' forStmtList '}' {
+   	printf("hhhhhhhhhhhhhh\n");
+   	printf("ini code : %s\n", $3->code);
+   	printf("cmp code : %s\n", $5->code);
+   	printf("chg code : %s\n", $7->code);
+   	$$ = newfor($3,$5,$7,$10);
+   }
 ;
+
 
 exp: exp CMP exp          { $$ = newcmp($2, $1, $3); }
    | exp '+' exp          { $$ = newast('+', $1,$3); }
@@ -61,6 +72,7 @@ exp: exp CMP exp          { $$ = newcmp($2, $1, $3); }
    | NAME '[' NUMBER ']'  { $$ = newarrref($1, $3); }
    | NUMBER               { $$ = newnum($1); }
    | NAME                 { $$ = newref($1); }
+   | NAME INCREMENT           { $$ = newincrement($1); }
    | NAME '=' exp         { $$ = newasgn($1, $3); }
    | NAME '[' NUMBER ']' '=' exp  { $$ = newarrasgn($1, $3, $6); }
    | NAME '(' explist ')' { $$ = newcall($1, $3); }
@@ -69,8 +81,8 @@ exp: exp CMP exp          { $$ = newcmp($2, $1, $3); }
 explist: exp
  | exp ',' explist  { $$ = newast('L', $1, $3); }
 ;
-symlist: NAME       { $$ = newsymlist($1, NULL); printf("%s \n", $1->name); }
- | NAME ',' symlist { $$ = newsymlist($1, $3);  printf("%s \n", $1->name);}
+symlist: NAME       { $$ = newsymlist($1, NULL); }
+ | NAME ',' symlist { $$ = newsymlist($1, $3); }
 ;
 //   | 'int' FUNC '(' explist ')' '{' stmtlist '}' { $$ = newfunc($2, $4); }
 calclist: /* nothing */
@@ -80,10 +92,13 @@ calclist: /* nothing */
     		printf("main function end, and in DeclareState\n");
     	}
     	// 做個結尾，把sp恢復
+    	if (cur_stk_size !=0) {
 	printf("要生出恢復挖stack的code\n");
 	char *temp = malloc(sizeof(char) * 80);
 	sprintf(temp, "addi sp, sp, %d\n", cur_stk_size);
 	strcat(totalCode, temp);
+    	}
+
      	printf("========== end =======\n");
      	printf("%s\n",totalCode);
    }

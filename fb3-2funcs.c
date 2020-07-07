@@ -69,6 +69,79 @@ struct ast *test(struct symlist *sl, enum ValueType valueType) {
     return (struct ast *) a;
 }
 
+struct ast *newStmtList(struct ast* stmtList, struct ast* stmt)
+{
+    struct ast *a = malloc(sizeof(struct symref));
+
+    if (!a) {
+        yyerror("out of space");
+        exit(0);
+    }
+    a->nodetype = 'L';
+    a->code = "";
+    a->place = "";
+
+    char* temp = malloc(sizeof(char)*80);
+    sprintf(temp, "%s%s\n", stmtList->code, stmt->code);
+    a->code = temp;
+    return a;
+}
+
+struct ast *newincrement(struct symbol *s) {
+    struct symref *a = malloc(sizeof(struct symref));
+
+    if (!a) {
+        yyerror("out of space");
+        exit(0);
+    }
+    a->nodetype = 'K';
+    a->code = "";
+    a->place = s->place;
+    a->s = s;
+
+    char* temp = malloc(sizeof(char)*80);
+    sprintf(temp, "addi %s, %s, 1\n", s->place, s->place);
+    a->code = temp;
+    return (struct ast *) a;
+}
+
+struct ast *newfor(struct ast* ini_a, struct ast* cmp_a, struct ast* chg_a, struct ast* stmtList) {
+    struct ast *a = malloc(sizeof(struct ast));
+
+    if (!a) {
+        yyerror("out of space");
+        exit(0);
+    }
+    printf("new for\n");
+    a->nodetype = 'f';
+    a->l = NULL;
+    a->r = NULL;
+    char *temp = malloc(sizeof(char) * 500);
+    // 變數初始化
+    strcat(temp, ini_a->code);
+    // 迴圈開始的標籤
+    strcat(temp, "for_loop:\n");
+    // 判斷是否要跳離 以及 jump的code
+    strcat(temp, cmp_a->code);
+    // 迴圈的body
+    strcat(temp, stmtList->code);
+    // 變數變化
+    strcat(temp, chg_a->code);
+
+    // 跳回去開頭
+    strcat(temp, "j for_loop\n");
+
+
+    // 迴圈結束的標籤
+    strcat(temp, "end:\n");
+
+    a->code = temp;
+    a->place = "";
+    printf("new for end\n");
+
+    return a;
+}
+
 struct ast *
 newast(int nodetype, struct ast *l, struct ast *r) {
     struct ast *a = malloc(sizeof(struct ast));
@@ -98,11 +171,11 @@ newast(int nodetype, struct ast *l, struct ast *r) {
             strcat(temp, "addi ");
             if (a->l->nodetype == 'K') {
                 char *temp2 = malloc(sizeof(char) * 80);
-                sprintf(temp2, "%s, %s, %.0f\n", a->place, a->r->place, ((struct numval*)a->l)->number);
+                sprintf(temp2, "%s, %s, %.0f\n", a->place, a->r->place, ((struct numval *) a->l)->number);
                 strcat(temp, temp2);
             } else {
                 char *temp2 = malloc(sizeof(char) * 80);
-                sprintf(temp2, "%s, %s, %.0f\n", a->place, a->l->place, ((struct numval*)a->r)->number);
+                sprintf(temp2, "%s, %s, %.0f\n", a->place, a->l->place, ((struct numval *) a->r)->number);
                 strcat(temp, temp2);
             }
         } else {
@@ -180,6 +253,18 @@ newcmp(int cmptype, struct ast *l, struct ast *r) {
     a->l = l;
     a->r = r;
     a->code = "";
+    a->place = "";
+//    ">"     { yylval.fn = 1; return CMP; }
+//    "<"     { yylval.fn = 2; return CMP; }
+//    "<>"    { yylval.fn = 3; return CMP; }
+//    "=="    { yylval.fn = 4; return CMP; }
+//    ">="    { yylval.fn = 5; return CMP; }
+//    "<="    { yylval.fn = 6; return CMP; }
+    if (cmptype == 2) {
+        char* temp = malloc(sizeof(char) * 80);
+        sprintf(temp, "bge %s, %s, end\n", l->place, r->place);
+        a->code = temp;
+    }
     return a;
 }
 
@@ -267,12 +352,14 @@ struct ast *newarrasgn(struct symbol *s, double num, struct ast *a) {
 
     if (curparseState == DeclareState) {
         curparseState = ComputeState;
-        // 要生出挖stack的code
-        printf("要生出挖stack的code\n");
-        char *temp = malloc(sizeof(char) * 80);
-        sprintf(temp, "addi sp, sp, -%d\n", cur_stk_size);
-        printf("newarrasgn generate code %s \n", temp);
-        strcat(totalCode, temp);
+        if (cur_stk_size != 0) {
+            // 要生出挖stack的code
+            printf("要生出挖stack的code\n");
+            char *temp = malloc(sizeof(char) * 80);
+            sprintf(temp, "addi sp, sp, -%d\n", cur_stk_size);
+            printf("newarrasgn generate code %s \n", temp);
+            //if (generate_TF) strcat(totalCode, temp);
+        }
     }
 
     af->nodetype = 'A';
@@ -289,7 +376,7 @@ struct ast *newarrasgn(struct symbol *s, double num, struct ast *a) {
                 cur_stk_size - s->mLoc - 4);
         af->code = temp;
         printf("newarrasgn generate code %s \n", af->code);
-        strcat(totalCode, af->code);
+        //if (generate_TF) strcat(totalCode, af->code);
     }
 
     return (struct ast *) af;
@@ -310,6 +397,19 @@ newasgn(struct symbol *s, struct ast *v) {
         printf("newasgn : symbol valueType is real\n");
 
     }
+
+    if (curparseState == DeclareState) {
+        curparseState = ComputeState;
+        if (cur_stk_size != 0) {
+            // 要生出挖stack的code
+            printf("要生出挖stack的code\n");
+            char *temp = malloc(sizeof(char) * 80);
+            sprintf(temp, "addi sp, sp, -%d\n", cur_stk_size);
+            printf("newarrasgn generate code %s \n", temp);
+            //if (generate_TF) strcat(totalCode, temp);
+        }
+    }
+
     a->nodetype = '=';
     a->s = s;
     a->v = v;
@@ -321,26 +421,26 @@ newasgn(struct symbol *s, struct ast *v) {
         sprintf(temp, "li %s, %.0f\n", s->place, ((struct numval *) v)->number);
         a->code = temp;
         printf("newasgn generate code %s \n", a->code);
-        strcat(totalCode, a->code);
+        //if (generate_TF) strcat(totalCode, a->code);
 
     } else if (a->v->nodetype == 'N') {
         char *temp = malloc(sizeof(char) * 80);
-        sprintf(temp, "li %s, %.0f\n", s->place, ((struct symref *) v)->s->value);
+        sprintf(temp, "li %s, %s\n", s->place, ((struct symref *) v)->s->place);
         a->code = temp;
         printf("newasgn generate code %s \n", a->code);
-        strcat(totalCode, a->code);
+        //if (generate_TF) strcat(totalCode, a->code);
     } else if (a->v->nodetype == 'A') { // 陣列參考
         char *temp = malloc(sizeof(char) * 80);
         sprintf(temp, "lw a7, %d(sp)\nadd %s, a7, x0\n", cur_stk_size - ((struct arrref *) v)->index * 4 - 4, s->place);
         a->code = temp;
         printf("newasgn generate code %s \n", a->code);
-        strcat(totalCode, a->code);
+        //if (generate_TF) strcat(totalCode, a->code);
     } else {// 如果右手邊的value是變數，
         char *temp = malloc(sizeof(char) * 80);
         sprintf(temp, "%sadd %s, t6, x0\n", a->v->code, a->place);
         a->code = temp;
         printf("newasgn generate code %s \n", a->code);
-        strcat(totalCode, a->code);
+        //if (generate_TF) strcat(totalCode, a->code);
 
     }
     return (struct ast *) a;
