@@ -404,7 +404,7 @@ union yyalloc
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  11
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  38
+#define YYNRULES  39
 /* YYNSTATES -- Number of states.  */
 #define YYNSTATES  100
 
@@ -457,7 +457,7 @@ static const yytype_uint8 yyrline[] =
        0,    41,    41,    43,    44,    46,    47,    49,    50,    53,
       54,    58,    59,    60,    61,    62,    72,    73,    74,    75,
       76,    77,    78,    79,    80,    81,    82,    83,    84,    85,
-      86,    87,    90,    91,    93,    94,    98,    99,   115
+      86,    87,    88,    91,    92,    94,    95,    99,   100,   116
 };
 #endif
 
@@ -519,15 +519,15 @@ static const yytype_int16 yypact[] =
 static const yytype_uint8 yydefact[] =
 {
        0,     0,     0,     0,     0,     0,     0,     0,     1,     2,
-       0,     0,     0,     0,     0,     0,    25,    26,     0,     0,
-       0,     0,     0,     0,     0,     4,     0,     0,    27,     0,
-       0,     0,    34,     9,     0,     0,    34,     0,     0,    23,
-      21,     0,    37,     0,     3,     0,     0,     0,     0,     0,
-      14,     0,    28,     0,     0,    32,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,    26,    27,     0,     0,
+       0,     0,     0,     0,     0,     4,     0,     0,    28,     0,
+       0,     0,    35,     9,     0,     0,    35,     0,     0,    23,
+      21,     0,    38,     0,     3,     0,     0,     0,     0,     0,
+      14,     0,    29,     0,     0,    33,     0,     0,     0,     0,
       13,    11,    12,     0,    22,     0,    16,    17,    18,    19,
-      20,    38,    24,     0,     0,    31,     0,     0,    35,     0,
-      10,     0,     0,     0,     0,    33,     7,     8,     0,    36,
-      29,    30,     0,     0,     0,     0,     0,     6,    15,     5
+      20,    39,    24,    25,     0,    32,     0,     0,    36,     0,
+      10,     0,     0,     0,     0,    34,     7,     8,     0,    37,
+      30,    31,     0,     0,     0,     0,     0,     6,    15,     5
 };
 
   /* YYPGOTO[NTERM-NUM].  */
@@ -611,7 +611,7 @@ static const yytype_uint8 yyr1[] =
        0,    35,    36,    37,    37,    38,    38,    39,    39,    40,
       40,    41,    41,    41,    41,    41,    42,    42,    42,    42,
       42,    42,    42,    42,    42,    42,    42,    42,    42,    42,
-      42,    42,    43,    43,    44,    44,    45,    45,    45
+      42,    42,    42,    43,    43,    44,    44,    45,    45,    45
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
@@ -619,8 +619,8 @@ static const yytype_uint8 yyr2[] =
 {
        0,     2,     3,     2,     1,     2,     1,     4,     4,     1,
        3,     3,     3,     3,     2,    11,     3,     3,     3,     3,
-       3,     2,     3,     2,     4,     1,     1,     2,     3,     6,
-       6,     4,     1,     3,     1,     3,    10,     7,     8
+       3,     2,     3,     2,     4,     4,     1,     1,     2,     3,
+       6,     6,     4,     1,     3,     1,     3,    10,     7,     8
 };
 
 
@@ -1430,66 +1430,72 @@ yyreduce:
 
   case 25:
 #line 81 "fb3-2.y" /* yacc.c:1646  */
-    { (yyval.a) = newnum((yyvsp[0].d)); }
+    { (yyval.a) = newarrref_v((yyvsp[-3].s), (yyvsp[-1].s)); }
 #line 1435 "fb3-2.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
 #line 82 "fb3-2.y" /* yacc.c:1646  */
-    { (yyval.a) = newref((yyvsp[0].s)); }
+    { (yyval.a) = newnum((yyvsp[0].d)); }
 #line 1441 "fb3-2.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
 #line 83 "fb3-2.y" /* yacc.c:1646  */
-    { (yyval.a) = newincrement((yyvsp[-1].s)); }
+    { (yyval.a) = newref((yyvsp[0].s)); }
 #line 1447 "fb3-2.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
 #line 84 "fb3-2.y" /* yacc.c:1646  */
-    { (yyval.a) = newasgn((yyvsp[-2].s), (yyvsp[0].a)); }
+    { (yyval.a) = newincrement((yyvsp[-1].s)); }
 #line 1453 "fb3-2.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
 #line 85 "fb3-2.y" /* yacc.c:1646  */
-    { (yyval.a) = newarrasgn((yyvsp[-5].s), (yyvsp[-3].d), (yyvsp[0].a)); }
+    { (yyval.a) = newasgn((yyvsp[-2].s), (yyvsp[0].a)); }
 #line 1459 "fb3-2.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
 #line 86 "fb3-2.y" /* yacc.c:1646  */
-    { (yyval.a) = newarrasgn_v((yyvsp[-5].s), (yyvsp[-3].s), (yyvsp[0].a)); }
+    { (yyval.a) = newarrasgn((yyvsp[-5].s), (yyvsp[-3].d), (yyvsp[0].a)); }
 #line 1465 "fb3-2.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
 #line 87 "fb3-2.y" /* yacc.c:1646  */
-    { (yyval.a) = newcall((yyvsp[-3].s), (yyvsp[-1].a)); }
+    { (yyval.a) = newarrasgn_v((yyvsp[-5].s), (yyvsp[-3].s), (yyvsp[0].a)); }
 #line 1471 "fb3-2.tab.c" /* yacc.c:1646  */
     break;
 
-  case 33:
-#line 91 "fb3-2.y" /* yacc.c:1646  */
-    { (yyval.a) = newast('L', (yyvsp[-2].a), (yyvsp[0].a)); }
+  case 32:
+#line 88 "fb3-2.y" /* yacc.c:1646  */
+    { (yyval.a) = newcall((yyvsp[-3].s), (yyvsp[-1].a)); }
 #line 1477 "fb3-2.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 93 "fb3-2.y" /* yacc.c:1646  */
-    { (yyval.sl) = newsymlist((yyvsp[0].s), NULL); }
+#line 92 "fb3-2.y" /* yacc.c:1646  */
+    { (yyval.a) = newast('L', (yyvsp[-2].a), (yyvsp[0].a)); }
 #line 1483 "fb3-2.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
 #line 94 "fb3-2.y" /* yacc.c:1646  */
-    { (yyval.sl) = newsymlist((yyvsp[-2].s), (yyvsp[0].sl)); }
+    { (yyval.sl) = newsymlist((yyvsp[0].s), NULL); }
 #line 1489 "fb3-2.tab.c" /* yacc.c:1646  */
     break;
 
-  case 37:
-#line 99 "fb3-2.y" /* yacc.c:1646  */
+  case 36:
+#line 95 "fb3-2.y" /* yacc.c:1646  */
+    { (yyval.sl) = newsymlist((yyvsp[-2].s), (yyvsp[0].sl)); }
+#line 1495 "fb3-2.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 38:
+#line 100 "fb3-2.y" /* yacc.c:1646  */
     {
     	if (curparseState == DeclareState) {
     		printf("main function end, and in DeclareState\n");
@@ -1505,11 +1511,11 @@ yyreduce:
      	printf("========== end =======\n");
      	printf("%s\n",totalCode);
    }
-#line 1509 "fb3-2.tab.c" /* yacc.c:1646  */
+#line 1515 "fb3-2.tab.c" /* yacc.c:1646  */
     break;
 
-  case 38:
-#line 115 "fb3-2.y" /* yacc.c:1646  */
+  case 39:
+#line 116 "fb3-2.y" /* yacc.c:1646  */
     {
   	if (curparseState == DeclareState) {
   		printf("main function end, and in DeclareState\n");
@@ -1517,11 +1523,11 @@ yyreduce:
    	printf("========== end =======\n");
    	printf("%s\n",totalCode);
    }
-#line 1521 "fb3-2.tab.c" /* yacc.c:1646  */
+#line 1527 "fb3-2.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1525 "fb3-2.tab.c" /* yacc.c:1646  */
+#line 1531 "fb3-2.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1749,7 +1755,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 144 "fb3-2.y" /* yacc.c:1906  */
+#line 145 "fb3-2.y" /* yacc.c:1906  */
 
 
 void parse(FILE* fileInput)

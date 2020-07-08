@@ -116,6 +116,7 @@ struct arrref {
     char* place;
     struct symbol* s;
     int index;
+    char* index_p;
 };
 
 struct symasgn {
